@@ -3,6 +3,9 @@
 # Add steps that publish symbols, save build artifacts, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
+variables:
+  PackageFolder: '$(Build.ArtifactStagingDirectory)/target'
+
 trigger:
 - master
 
@@ -39,6 +42,21 @@ steps:
   inputs:
     secureFile: '$(SecureFileId)'
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  
+- task: DotNetCoreCLI@2
+  displayName: 'DotNet Restore'
+  inputs:
+    command: restore
+    projects: ArgumentValidator/ArgumentValidator.sln
+    feedsToUse: config
+    nugetConfigPath: NuGet.config
+    verbosityRestore: Normal
+
+- task: DotNetCoreCLI@2
+  displayName: 'DotNet Build'
+  inputs:
+    command: build
+    projects: ArgumentValidator/ArgumentValidator.sln
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning dlls'
@@ -99,4 +117,51 @@ steps:
              "toolVersion": "1.0"
          }
      ]
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+- task: DotNetCoreCLI@2
+  displayName: 'DotNet Test'
+  inputs:
+    command: test
+    projects: ArgumentValidator/ArgumentValidator.sln
+
+- task: DotNetCoreCLI@2
+  displayName: 'DotNet Pack'
+  inputs:
+    command: pack
+    packagesToPack: ArgumentValidator/ArgumentValidator.sln
+    nobuild: true
+    packDirectory: '$(PackageFolder)'
+    verbosityPack: Normal
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+- task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
+  displayName: 'ESRP CodeSigning Packages'
+  inputs:
+    ConnectedServiceName: '$(EsrpEndpointName)'
+    FolderPath: '$(PackageFolder)'
+    Pattern: '*.nupkg'
+    signConfigType: inlineSignParams
+    inlineOperation: |
+     [{
+             "keyCode": "CP-401405",
+             "operationSetCode": "NuGetSign",
+             "parameters": [ ],
+             "toolName": "sign",
+             "toolVersion": "1.0"
+         },
+         {
+             "keyCode": "CP-401405",
+             "operationSetCode": "NuGetVerify",
+             "parameters": [ ],
+             "toolName": "sign",
+             "toolVersion": "1.0"
+         }]
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+
+- task: PublishBuildArtifacts@1
+  displayName: 'Publish Artifact: Packages'
+  inputs:
+    PathtoPublish: '$(PackageFolder)'
+    ArtifactName: packages
   condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
