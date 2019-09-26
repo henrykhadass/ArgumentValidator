@@ -38,7 +38,7 @@ steps:
   displayName: 'Download Strong Name Public Key'
   inputs:
     secureFile: '$(SecureFileId)'
-  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning dlls'
@@ -99,4 +99,4 @@ steps:
              "toolVersion": "1.0"
          }
      ]
-  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
