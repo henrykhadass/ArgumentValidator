@@ -46,7 +46,6 @@ steps:
     command: restore
     projects: ArgumentValidator/ArgumentValidator.sln
     feedsToUse: config
-    nugetConfigPath: NuGet.config
     verbosityRestore: Normal
 
 - task: DotNetCoreCLI@2
