@@ -14,6 +14,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   AssemblyOriginatorKeyFile: '$(AssemblyOriginatorKeyFile.secureFilePath)'
+  PublicRelease: "$[ eq(variables['Build.SourceBranch'], 'refs/heads/master') ]"
 
 steps:
 - task: NuGetToolInstaller@1
@@ -27,6 +28,7 @@ steps:
   displayName: 'Download Strong Name Public Key'
   inputs:
     secureFile: '$(SecureFileId)'
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
   
 - task: DotNetCoreCLI@2
   displayName: 'DotNet Restore'
@@ -101,7 +103,7 @@ steps:
              "toolVersion": "1.0"
          }
      ]
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
 
 - task: DotNetCoreCLI@2
   displayName: 'DotNet Test'
@@ -117,7 +119,7 @@ steps:
     nobuild: true
     packDirectory: '$(PackageFolder)'
     verbosityPack: Normal
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning Packages'
@@ -141,11 +143,11 @@ steps:
              "toolName": "sign",
              "toolVersion": "1.0"
          }]
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: Packages'
   inputs:
     PathtoPublish: '$(PackageFolder)'
     ArtifactName: packages
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
