@@ -39,7 +39,6 @@ steps:
   displayName: 'Download Strong Name Public Key'
   inputs:
     secureFile: '$(SecureFileId)'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   
 - task: DotNetCoreCLI@2
   displayName: 'DotNet Restore'
