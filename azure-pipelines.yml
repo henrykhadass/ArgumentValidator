@@ -13,6 +13,8 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  AssemblyOriginatorKeyFile: '$(AssemblyOriginatorKeyFile.secureFilePath)'
+  PublicRelease: "$[ eq(variables['Build.SourceBranch'], 'refs/heads/master') ]"
 
 steps:
 - task: NuGetToolInstaller@1
@@ -20,25 +22,13 @@ steps:
 - task: NuGetCommand@2
   inputs:
     restoreSolution: '$(solution)'
-
-- task: VSBuild@1
-  inputs:
-    solution: '$(solution)'
-    msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
-
-- task: VSTest@2
-  inputs:
-    platform: '$(buildPlatform)'
-    configuration: '$(buildConfiguration)'
     
 - task: DownloadSecureFile@1
   name: "AssemblyOriginatorKeyFile"
   displayName: 'Download Strong Name Public Key'
   inputs:
     secureFile: '$(SecureFileId)'
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
   
 - task: DotNetCoreCLI@2
   displayName: 'DotNet Restore'
@@ -113,7 +103,7 @@ steps:
              "toolVersion": "1.0"
          }
      ]
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
 
 - task: DotNetCoreCLI@2
   displayName: 'DotNet Test'
@@ -129,7 +119,7 @@ steps:
     nobuild: true
     packDirectory: '$(PackageFolder)'
     verbosityPack: Normal
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning Packages'
@@ -153,11 +143,11 @@ steps:
              "toolName": "sign",
              "toolVersion": "1.0"
          }]
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: Packages'
   inputs:
     PathtoPublish: '$(PackageFolder)'
     ArtifactName: packages
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+  condition: and(succeeded(), eq(variables['PublicRelease'], 'True'))
