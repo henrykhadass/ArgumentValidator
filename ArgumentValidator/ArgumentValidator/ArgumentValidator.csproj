@@ -24,5 +24,10 @@
     <Copyright>Copyright (c) 2016 Rezaul Hoque</Copyright>
     <PackageTags>null nullcheck argument validator validation guard guards argumentvalidator</PackageTags>
   </PropertyGroup>
-
+  
+  <PropertyGroup Label="Signing" Condition="'$(PublicRelease)'=='true' AND '$(IsTestProject)'!='true'">
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>true</DelaySign>
+  </PropertyGroup>
+ 
 </Project>
