@@ -48,8 +48,8 @@ steps:
   displayName: 'ESRP CodeSigning dlls'
   inputs:
     ConnectedServiceName: '$(EsrpEndpointName)'
-    FolderPath: '$(build.sourcesdirectory)'
-    Pattern: '$(build.taskinput.sign)'
+    FolderPath: ArgumentValidator/ArgumentValidator/bin/Debug/netstandard2.0
+    Pattern: ArgumentValidator.dll
     UseMinimatch: true
     signConfigType: inlineSignParams
     inlineOperation: |
