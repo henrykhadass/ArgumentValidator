@@ -15,6 +15,7 @@ variables:
   buildConfiguration: 'Release'
   AssemblyOriginatorKeyFile: '$(AssemblyOriginatorKeyFile.secureFilePath)'
   PublicRelease: "$[ eq(variables['Build.SourceBranch'], 'refs/heads/master') ]"
+  PackageFolder: '$(Build.ArtifactStagingDirectory)/target'
 
 steps:
 - task: NuGetToolInstaller@1
