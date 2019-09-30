@@ -44,6 +44,7 @@ steps:
   inputs:
     command: build
     projects: ArgumentValidator/ArgumentValidator.sln
+    arguments: '--configuration $(BuildConfiguration)'
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning dlls'
@@ -111,12 +112,14 @@ steps:
   inputs:
     command: test
     projects: ArgumentValidator/ArgumentValidator.sln
+    arguments: '--configuration $(BuildConfiguration) --no-build -v n'
 
 - task: DotNetCoreCLI@2
   displayName: 'DotNet Pack'
   inputs:
     command: pack
     packagesToPack: ArgumentValidator/ArgumentValidator.sln
+    configuration: $(BuildConfiguration)
     nobuild: true
     packDirectory: '$(PackageFolder)'
     verbosityPack: Normal
