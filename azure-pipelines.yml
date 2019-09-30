@@ -44,7 +44,6 @@ steps:
   inputs:
     command: build
     projects: ArgumentValidator/ArgumentValidator.sln
-    arguments: '--configuration $(BuildConfiguration)'
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning dlls'
