@@ -44,12 +44,13 @@ steps:
   inputs:
     command: build
     projects: ArgumentValidator/ArgumentValidator.sln
+    arguments: '--configuration $(BuildConfiguration)'
 
 - task: SFP.build-tasks.custom-build-task-1.EsrpCodeSigning@1
   displayName: 'ESRP CodeSigning dlls'
   inputs:
     ConnectedServiceName: '$(EsrpEndpointName)'
-    FolderPath: ArgumentValidator/ArgumentValidator/bin/Debug/netstandard2.0
+    FolderPath: ArgumentValidator/ArgumentValidator/bin/Release/netstandard2.0
     Pattern: ArgumentValidator.dll
     UseMinimatch: true
     signConfigType: inlineSignParams
